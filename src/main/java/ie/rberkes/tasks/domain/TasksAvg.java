@@ -1,14 +1,11 @@
 package ie.rberkes.tasks.domain;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "tasks_avg")
@@ -18,11 +15,7 @@ import java.util.UUID;
 public class TasksAvg extends BaseEntity {
 
     @Id
-    private UUID id;
-
-    @Column(unique = true, nullable = false)
     private String taskName;
-
     private long counter;
     private double avgDuration;
 }
