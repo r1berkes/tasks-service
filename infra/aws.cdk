@@ -1,0 +1,53 @@
+// IGNORE, it's a sample
+// IGNORE, it's a sample
+// IGNORE, it's a sample
+
+const cdk = require('aws-cdk-lib');
+const lambda = require('aws-cdk-lib/aws-lambda');
+const kinesis = require('aws-cdk-lib/aws-kinesis');
+const apigw = require('aws-cdk-lib/aws-apigateway');
+const iam = require('aws-cdk-lib/aws-iam');
+
+class ShopStack extends cdk.Stack {
+  constructor(scope, id, props) {
+    super(scope, id, props);
+
+    const stream = new kinesis.Stream(this, 'ShopStream', {
+      shardCount: 1
+    });
+
+    const fn = new lambda.Function(this, 'IngestLambda', {
+      runtime: lambda.Runtime.PYTHON_3_11,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('lambda'),
+      environment: {
+        STREAM_NAME: stream.streamName
+      }
+    });
+
+    // permissions
+    stream.grantWrite(fn);
+
+    const api = new apigw.LambdaRestApi(this, 'ShopApi', {
+      handler: fn
+    });
+  }
+}
+
+module.exports = { ShopStack };
+
+
+const fn = new lambda.Function(this, 'Fn', {
+  runtime: lambda.Runtime.PYTHON_3_11,
+  handler: 'handler.handler',
+  code: lambda.Code.fromAsset('lambda'),
+});
+
+new apigatewayv2.HttpApi(this, 'Api', {
+  defaultIntegration: new integrations.HttpLambdaIntegration('Integration', fn),
+});
+
+fn.addToRolePolicy(new iam.PolicyStatement({
+  actions: ["kinesis:PutRecord"],
+  resources: ["*"],
+}));
